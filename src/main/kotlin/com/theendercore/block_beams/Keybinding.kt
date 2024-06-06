@@ -3,14 +3,13 @@ package com.theendercore.block_beams
 import com.theendercore.block_beams.BlockBeams.config
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper
-import net.minecraft.client.option.KeyBinding
-import net.minecraft.client.util.InputUtil
+import com.mojang.blaze3d.platform.InputUtil
+import net.minecraft.client.option.KeyBind
 import org.lwjgl.glfw.GLFW
 
-
 object Keybinding {
-    private val configKey: KeyBinding = KeyBindingHelper.registerKeyBinding(
-        KeyBinding(
+    private val configKey: KeyBind = KeyBindingHelper.registerKeyBinding(
+        KeyBind(
             "key.block_beams.config",
             InputUtil.Type.KEYSYM,
             GLFW.GLFW_KEY_UNKNOWN,

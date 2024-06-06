@@ -21,12 +21,19 @@ object BlockBeams {
 
     @JvmField
     val LOGGER: Logger = LoggerFactory.getLogger(MODID)
-    fun id(path: String): Identifier = Identifier(path)
+
+    @JvmStatic
+    fun id(path: String): Identifier = Identifier.method_60655(MODID, path)
+    fun id2(path: String): Identifier = Identifier.method_60654(path)
+
+    @JvmStatic
     fun getId(block: Block): Identifier = Registries.BLOCK.getId(block)
+
+    @JvmStatic
     fun config(): Config = Config.INSTANCE
 
     @JvmField
-    val PASSABLE_BLOCKS: TagKey<Block> = TagKey.of(RegistryKeys.BLOCK, id("$MODID:passable_blocks"))
+    val PASSABLE_BLOCKS: TagKey<Block> = TagKey.of(RegistryKeys.BLOCK, id("passable_blocks"))
 
 
     @Suppress("unused")
@@ -36,6 +43,7 @@ object BlockBeams {
         Keybinding.init()
     }
 
+    @JvmStatic
     fun beam(pos: BlockPos, color: String) {
         for (i in 0 until 12) {
             try {
@@ -55,6 +63,7 @@ object BlockBeams {
 
     }
 
+    @JvmStatic
     fun canRender(world: World, pos: BlockPos): Boolean =
         (isPassable(world, pos, 1) && isPassable(world, pos, 2) && isPassable(world, pos, 3))
 
@@ -74,9 +83,9 @@ object BlockBeams {
     fun clientOnlyCheck(state: BlockState, c: ConfigData): Boolean {
         var value = false
         for (block in c.clientTag) {
-            value = block.startsWith("#") && state.isIn(TagKey.of(RegistryKeys.BLOCK, id(block.removePrefix("#"))))
+            value = block.startsWith("#") && state.isIn(TagKey.of(RegistryKeys.BLOCK, id2(block.removePrefix("#"))))
                     ||
-                    !block.startsWith("#") && getId(state.block) == id(block)
+                    !block.startsWith("#") && getId(state.block) == id2(block)
             if (value) break
         }
         return value

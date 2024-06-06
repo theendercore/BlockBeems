@@ -1,77 +1,81 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
-    kotlin("jvm")
-    kotlin("plugin.serialization") version embeddedKotlinVersion
-    id("fabric-loom")
-    `maven-publish`
-    java
+    alias(libs.plugins.fabric.loom)
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlinx.serialization)
+    alias(libs.plugins.iridium)
+    alias(libs.plugins.iridium.publish)
+    alias(libs.plugins.iridium.upload)
 }
 
-base.archivesName.set(property("archives_base_name") as String)
 
 group = property("maven_group")!!
 version = property("mod_version")!!
+base.archivesName.set(property("archives_base_name") as String)
+description = property("description") as String
+
+val modid: String by project
+val mod_name: String by project
+val modrinth_id: String? by project
+val curse_id: String? by project
 
 repositories {
-    maven("https://maven.brokenfuse.me/releases")
+    maven("https://teamvoided.org/releases")
+    maven("https://maven.terraformersmc.com/") { name = "Terraformers" }
+    mavenCentral()
+}
+
+modSettings {
+    modId(modid)
+    modName(mod_name)
+
+    entrypoint("client", "com.theendercore.block_beams.BlockBeams::onInitialize")
+    mixinFile("$modid.mixins.json")
+
+//    accessWidener("$modid.accesswidener")
 }
 
 dependencies {
-    minecraft("com.mojang:minecraft:${property("minecraft_version")}")
-    mappings("net.fabricmc:yarn:${property("yarn_mappings")}:v2")
-    modImplementation("net.fabricmc:fabric-loader:${property("loader_version")}")
-
-    modImplementation("net.fabricmc:fabric-language-kotlin:${property("fabric_kotlin_version")}")
-    modImplementation("net.fabricmc.fabric-api:fabric-api:${property("fabric_api_version")}")
-
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
-//    modImplementation("org.teamvoided:voidlib:${property("voidlib_version")}")
+    modImplementation(fileTree("libs"))
+    modImplementation(libs.farrow)
+    modImplementation(libs.modmenu)
 }
+
+sourceSets["main"].resources.srcDir("src/main/generated")
 
 tasks {
-
-    processResources {
-        inputs.property("version", project.version)
-        filesMatching("fabric.mod.json") {
-            expand(mutableMapOf("version" to project.version))
-        }
+    val targetJavaVersion = 21
+    withType<JavaCompile> {
+        options.encoding = "UTF-8"
+        options.release.set(targetJavaVersion)
     }
 
-    jar {
-        from("LICENSE")
+    withType<KotlinCompile> {
+        kotlinOptions.jvmTarget = targetJavaVersion.toString()
     }
 
-    publishing {
-        publications {
-            create<MavenPublication>("mavenJava") {
-                artifact(remapJar) {
-                    builtBy(remapJar)
-                }
-                artifact(kotlinSourcesJar) {
-                    builtBy(remapSourcesJar)
-                }
-            }
-        }
-
-        // select the repositories you want to publish to
-        repositories {
-            // uncomment to publish to the local maven
-            // mavenLocal()
-        }
+    java {
+        toolchain.languageVersion.set(JavaLanguageVersion.of(JavaVersion.toVersion(targetJavaVersion).toString()))
+        withSourcesJar()
     }
-
-    compileKotlin {
-        kotlinOptions.jvmTarget = "17"
-    }
-
 }
 
-java {
-    // Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
-    // if it is present.
-    // If you remove this line, sources will not be generated.
-    withSourcesJar()
+/*publishScript {
+    releaseRepository("TeamVoided", "https://maven.teamvoided.org/releases")
+    publication(modSettings.modId(), false)
+    publishSources(true)
+}*/
+
+uploadConfig {
+//    debugMode = true
+    modrinthId = modrinth_id
+    curseId = curse_id
+
+    // FabricApi
+    modrinthDependency("P7dR8mSH", uploadConfig.REQUIRED)
+    curseDependency("fabric-api", uploadConfig.REQUIRED)
+    // Fabric Language Kotlin
+    modrinthDependency("Ha28R6CL", uploadConfig.REQUIRED)
+    curseDependency("fabric-language-kotlin", uploadConfig.REQUIRED)
 }
-
-
-
-// configure the maven publication
