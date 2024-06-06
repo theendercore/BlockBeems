@@ -19,32 +19,32 @@ import java.awt.Color
 object BlockBeams {
     const val MODID = "block_beams"
 
-    @JvmField
-    val LOGGER: Logger = LoggerFactory.getLogger(MODID)
-
-    @JvmStatic
+    val log: Logger = LoggerFactory.getLogger(MODID)
     fun id(path: String): Identifier = Identifier.method_60655(MODID, path)
     fun id2(path: String): Identifier = Identifier.method_60654(path)
-
-    @JvmStatic
     fun getId(block: Block): Identifier = Registries.BLOCK.getId(block)
-
-    @JvmStatic
     fun config(): Config = Config.INSTANCE
 
-    @JvmField
     val PASSABLE_BLOCKS: TagKey<Block> = TagKey.of(RegistryKeys.BLOCK, id("passable_blocks"))
 
 
     @Suppress("unused")
     fun onInitialize() {
-        LOGGER.info("Entering the Blocktrix...")
+        log.info("Entering the Blocktrix...")
         config().load()
         Keybinding.init()
     }
 
     @JvmStatic
-    fun beam(pos: BlockPos, color: String) {
+    fun beamingTime(state: BlockState, world: World, pos: BlockPos) {
+        val beams = config().config.blockBeams.mapKeys { (key, _) -> id2(key) }
+        val color = beams[getId(state.block)]
+        if (color != null && canRender(world, pos)) {
+            renderBeam(pos, color)
+        }
+    }
+
+    private fun renderBeam(pos: BlockPos, color: String) {
         for (i in 0 until 12) {
             try {
                 MinecraftClient.getInstance().particleManager.addParticle(
@@ -57,18 +57,18 @@ object BlockBeams {
                     0.0
                 )
             } catch (throwable: Throwable) {
-                LOGGER.warn("Could not spawn particle effect")
+                log.warn("Could not spawn particle effect")
             }
         }
 
     }
 
-    @JvmStatic
-    fun canRender(world: World, pos: BlockPos): Boolean =
-        (isPassable(world, pos, 1) && isPassable(world, pos, 2) && isPassable(world, pos, 3))
+    private fun canRender(world: World, pos: BlockPos): Boolean =
+        (1..3).map { isPassable(world, pos, it) }.all { it }
+//        (isPassable(world, pos, 1) && isPassable(world, pos, 2) && isPassable(world, pos, 3))
 
 
-    fun isPassable(world: World, pos: BlockPos, dist: Int): Boolean {
+    private fun isPassable(world: World, pos: BlockPos, dist: Int): Boolean {
         val c = config().config
         val state = world.getBlockState(pos.up(dist))
 
@@ -80,7 +80,7 @@ object BlockBeams {
 
     }
 
-    fun clientOnlyCheck(state: BlockState, c: ConfigData): Boolean {
+    private fun clientOnlyCheck(state: BlockState, c: ConfigData): Boolean {
         var value = false
         for (block in c.clientTag) {
             value = block.startsWith("#") && state.isIn(TagKey.of(RegistryKeys.BLOCK, id2(block.removePrefix("#"))))

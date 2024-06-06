@@ -11,17 +11,10 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import static com.theendercore.block_beams.BlockBeams.getId;
-
-
 @Mixin(Block.class)
 public class BlockMixin {
 	@Inject(at = @At("TAIL"), method = "randomDisplayTick")
 	public void randomDisplayTick(BlockState state, World world, BlockPos pos, RandomGenerator random, CallbackInfo ci) {
-		var beams = BlockBeams.config().getConfig().getBlockBeams();
-		var key = getId(state.getBlock()).toString();
-		if (beams.containsKey(key) && BlockBeams.canRender(world, pos)) {
-			BlockBeams.beam(pos, key);
-		}
+		BlockBeams.beamingTime(state, world, pos);
 	}
 }

@@ -11,14 +11,12 @@ object Keybinding {
     private val configKey: KeyBind = KeyBindingHelper.registerKeyBinding(
         KeyBind(
             "key.block_beams.config",
-            InputUtil.Type.KEYSYM,
-            GLFW.GLFW_KEY_UNKNOWN,
+            InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_UNKNOWN,
             "category.block_beams.generic"
         )
     )
 
     fun init() {
-        ClientTickEvents.END_CLIENT_TICK.register(ClientTickEvents.EndTick
-        { if (configKey.wasPressed()) config().load() })
+        ClientTickEvents.END_CLIENT_TICK.register(ClientTickEvents.EndTick { if (configKey.wasPressed()) config().load() })
     }
 }
