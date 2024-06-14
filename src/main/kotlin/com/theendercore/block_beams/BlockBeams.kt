@@ -20,8 +20,8 @@ object BlockBeams {
     const val MODID = "block_beams"
 
     val log: Logger = LoggerFactory.getLogger(MODID)
-    fun id(path: String): Identifier = Identifier.method_60655(MODID, path)
-    fun id2(path: String): Identifier = Identifier.method_60654(path)
+    fun id(path: String): Identifier = Identifier.of(MODID, path)
+    fun parseId(path: String): Identifier = Identifier.parse(path)
     fun getId(block: Block): Identifier = Registries.BLOCK.getId(block)
     fun config(): Config = Config.INSTANCE
 
@@ -37,7 +37,7 @@ object BlockBeams {
 
     @JvmStatic
     fun beamingTime(state: BlockState, world: World, pos: BlockPos) {
-        val beams = config().config.blockBeams.mapKeys { (key, _) -> id2(key) }
+        val beams = config().config.blockBeams.mapKeys { (key, _) -> parseId(key) }
         val color = beams[getId(state.block)]
         if (color != null && canRender(world, pos)) {
             renderBeam(pos, color)
@@ -65,8 +65,6 @@ object BlockBeams {
 
     private fun canRender(world: World, pos: BlockPos): Boolean =
         (1..3).map { isPassable(world, pos, it) }.all { it }
-//        (isPassable(world, pos, 1) && isPassable(world, pos, 2) && isPassable(world, pos, 3))
-
 
     private fun isPassable(world: World, pos: BlockPos, dist: Int): Boolean {
         val c = config().config
@@ -83,9 +81,9 @@ object BlockBeams {
     private fun clientOnlyCheck(state: BlockState, c: ConfigData): Boolean {
         var value = false
         for (block in c.clientTag) {
-            value = block.startsWith("#") && state.isIn(TagKey.of(RegistryKeys.BLOCK, id2(block.removePrefix("#"))))
+            value = block.startsWith("#") && state.isIn(TagKey.of(RegistryKeys.BLOCK, parseId(block.removePrefix("#"))))
                     ||
-                    !block.startsWith("#") && getId(state.block) == id2(block)
+                    !block.startsWith("#") && getId(state.block) == parseId(block)
             if (value) break
         }
         return value

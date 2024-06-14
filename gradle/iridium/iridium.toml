@@ -3,13 +3,17 @@ modId = "block_beams"
 githubRepo = "theendercore/BlockBeams"
 discordServerInviteId = "KZ5Q364hEg"
 authors = [ "TheEnderCore" ]
-majorMinecraftVersion = "1.21-beta.1"
-minecraftVersion = "1.21-pre2"
+majorMinecraftVersion = "1.21"
+minecraftVersion = "1.21"
 fabricLoaderVersion = "0.15.11"
-fabricApiVersion = "0.99.4+1.21"
+fabricApiVersion = "0.100.1+1.21"
 fabricLangKotlinVersion = "1.11.0+kotlin.2.0.0"
 license = "MIT"
 modules = [ ]
+modDescription = "A very simple mod that spawns a beam of colored particles above a block."
+# Modmenu badges, values can be: [ library, deprecated ]
+badges = [ ]
+disableKotlin = false
 
 [mappings]
     # You have 7 mapping types
@@ -21,4 +25,4 @@ modules = [ ]
     # MOJYARN: Yarn layered on top of the official Mojang mappings
     # CUSTOM: Custom mapping jar. Uses mappings version as file location
     type = "QUILT"
-    version = "1.21-pre2+build.2"
+    version = "1.21+build.2"

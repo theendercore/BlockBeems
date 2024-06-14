@@ -1,3 +1,4 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -12,11 +13,8 @@ plugins {
 
 group = property("maven_group")!!
 version = property("mod_version")!!
-base.archivesName.set(property("archives_base_name") as String)
-description = property("description") as String
+base.archivesName.set(modSettings.modId())
 
-val modid: String by project
-val mod_name: String by project
 val modrinth_id: String? by project
 val curse_id: String? by project
 
@@ -27,11 +25,8 @@ repositories {
 }
 
 modSettings {
-    modId(modid)
-    modName(mod_name)
-
     entrypoint("client", "com.theendercore.block_beams.BlockBeams::onInitialize")
-    mixinFile("$modid.mixins.json")
+    mixinFile("${modId()}.mixins.json")
 
 //    accessWidener("$modid.accesswidener")
 }
@@ -52,7 +47,7 @@ tasks {
     }
 
     withType<KotlinCompile> {
-        kotlinOptions.jvmTarget = targetJavaVersion.toString()
+        compilerOptions.jvmTarget = JvmTarget.JVM_21
     }
 
     java {
@@ -71,6 +66,8 @@ uploadConfig {
 //    debugMode = true
     modrinthId = modrinth_id
     curseId = curse_id
+
+    changeLog = "- 21 update"
 
     // FabricApi
     modrinthDependency("P7dR8mSH", uploadConfig.REQUIRED)
